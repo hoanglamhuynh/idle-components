@@ -1,0 +1,50 @@
+version: "3.7"
+services:
+  traefik:
+    image: "traefik:v2.0.0-rc3"
+    container_name: "traefik"
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  core:
+    image: python:3
+    volumes:
+      - ./services/idlecomponent-core/dist:/var/www/app
+    ports:
+      - "38000:8000"
+    command: bash -c "cd /var/www/app && python -m http.server 8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.core.rule=Host(`js.idle-component.local`)"
+      - "traefik.http.routers.core.entrypoints=web"
+
+  testpage:
+    image: python:3
+    volumes:
+      - ./services/idlecomponent-testpage:/var/www/app
+    ports:
+      - "39000:8000"
+    command: bash -c "cd /var/www/app && python -m http.server 8000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.testpage.rule=Host(`example.test`)"
+      - "traefik.http.routers.testpage.entrypoints=web"
+  
+  cms:
+    image: wordpress
+    restart: always
+    volumes:
+      - ./services/idlecomponent-cms/:/var/www/html/wp-content
+      - ./services/idlecomponent-cms/wp-config.php:/var/www/html/wp-config.php
+      - ./services/idlecomponent-cms/plugins:/var/www/html/plugins
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cms.rule=Host(`idle-component.local`)"
+      - "traefik.http.routers.cms.entrypoints=web"
