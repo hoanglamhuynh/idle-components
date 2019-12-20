@@ -44,6 +44,7 @@ services:
       - ./services/idlecomponent-cms/:/var/www/html/wp-content
       - ./services/idlecomponent-cms/wp-config.php:/var/www/html/wp-config.php
       - ./services/idlecomponent-cms/plugins:/var/www/html/plugins
+      - ./services/idlecomponent-cms/themes/idlecomponent:/var/www/html/themes/idlecomponent
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.cms.rule=Host(`idle-component.local`)"
