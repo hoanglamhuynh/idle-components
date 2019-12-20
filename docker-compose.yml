@@ -36,7 +36,17 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.testpage.rule=Host(`example.test`)"
       - "traefik.http.routers.testpage.entrypoints=web"
-  
+
+  asset:
+    build: ./services/idlecomponent-asset
+    volumes:
+      - ./services/idlecomponent-asset:/var/www
+    command: bash -c "npm start"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.assets.rule=Host(`static.idle-component.local`)"
+      - "traefik.http.routers.assets.entrypoints=web"
+
   cms:
     image: wordpress
     restart: always
